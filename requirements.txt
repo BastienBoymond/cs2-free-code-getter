@@ -1,0 +1,8 @@
+instagrapi
+requests
+Pillow
+pytesseract
+opencv-python
+numpy
+easyocr
+python-dotenv 
