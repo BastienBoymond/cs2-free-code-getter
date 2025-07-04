@@ -65,3 +65,10 @@ python extraire_code.py [chemin_vers_image]
 - Multiple prétraitements d'images pour améliorer la reconnaissance
 - Gestion des erreurs et logging
 - Sauvegarde automatique des codes extraits 
+
+
+
+pour facebook
+
+https://github.com/hikaruAi/FacebookBot
+https://chatgpt.com/c/6868606d-f50c-8009-b6f3-fa1a845b5904
