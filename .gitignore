@@ -1,4 +1,5 @@
 .env
 __pycache__
 downloaded_images
-session.json
+session_*.json
+setup.json
