@@ -16,15 +16,13 @@ def extract_code(image_path, partie='inférieure'):
     image = Image.open(image_path)
     cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-    
-    # Calculer les marges à enlever
+
     marge = int(gray.shape[1] * 0.15)
 
-    # Diviser l'image en quarts et sauvegarder les parties
     hauteur, largeur = gray.shape
     if partie == 'supérieure':
         gray = gray[:hauteur // 2 , marge:largeur - marge]
-        gray = cv2.resize(gray, (0, 0), fx=0.8, fy=0.8) 
+        gray = cv2.resize(gray, (largeur // 2, hauteur // 2))
     elif partie == 'inférieure':
         gray = gray[hauteur // 2:, marge:largeur - marge]
         gray = cv2.resize(gray, (0, 0), fx=0.8, fy=0.8)  
@@ -44,7 +42,7 @@ def extract_code(image_path, partie='inférieure'):
         pre_img = prep_func(gray)
         pil_img = Image.fromarray(pre_img)
         for psm in psm_modes:
-            config = f'--psm {psm} -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            config = f'--psm {psm} -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --oem 1'
             texte = pytesseract.image_to_string(pil_img, lang='eng', config=config)
             texte = texte.upper() 
             codes = re.findall(r'\b[A-Z0-9]{3,12}\b', texte)
@@ -52,22 +50,43 @@ def extract_code(image_path, partie='inférieure'):
 
     banned_codes = {'FREECDE', 'XYZ789'}  
 
+    print(f"Codes extraits avant filtrage : {all_codes}")
+
     if all_codes:
         code_counts = Counter(all_codes)
         sorted_codes = sorted(code_counts.items(), key=lambda x: (-x[1], -len(x[0])))
+        best_code = None
+        second_best_code = None
         for code, _ in sorted_codes:
             if code not in banned_codes:
-                best_code = code
-                break
-        else:
-            best_code = None
+                if best_code is None:
+                    best_code = code
+                elif second_best_code is None:
+                    second_best_code = code
+                    break
+
+        print(f"Codes candidats extraits : {set(all_codes)}")
+
+        print(f"Codes triés : {sorted_codes}")
+
+        print(f"Meilleur code : {best_code}")
+        print(f"Deuxième meilleur code : {second_best_code}")
+
+        if 'FREECDE' in [code for code, _ in sorted_codes]:
+            print("'FREECDE' trouvé dans la liste, recherche du code avec le plus d'occurrences (excluant FREECDE)...")
+            for code, count in sorted_codes:
+                if code != 'FREECDE':
+                    best_code = code
+                    break
+        
+        if partie == 'supérieure' and 'FREECDE' not in [code for code, _ in sorted_codes]:
+            print("Pas de 'FREECDE' trouvé dans la partie supérieure, ce n'est probablement pas une image de code.")
+            return None
 
         if best_code:
             print(f"\nCode le plus probable : {best_code}")
-            print(f"Tous les codes candidats : {set(all_codes)}")
             return best_code
-    
+        else:
+            print("Aucun code valide trouvé après filtrage.")
     print("Aucun code trouvé.")
     return None
-
-
