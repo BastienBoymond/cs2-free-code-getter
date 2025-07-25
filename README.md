@@ -1,74 +1,180 @@
-# CSGO Cases Code Extractor
+# 🎮 CS:GO Code Extractor Bot
 
-Ce projet combine le téléchargement automatique d'images depuis Instagram et l'extraction de codes promo à partir de ces images.
+An automated bot that monitors social media platforms (Instagram, Facebook (no implemented), Discord) to automatically extract CS:GO promo codes and send them via Discord.
 
-## Installation
+## 🚀 Features
 
-1. Installez les dépendances :
+- **Multi-platform monitoring** : Instagram, Facebook and Discord
+- **Automatic code extraction** : Uses OCR (Tesseract) to detect promo codes
+- **Automatic sending** : Sends new codes via Discord
+- **Duplicate detection** : Avoids sending the same code multiple times
+- **Continuous monitoring** : Runs in a loop with hourly checks
+- **Multi-site support** : Monitors multiple accounts simultaneously
+
+## 📋 Prerequisites
+
+- Python 3.7+
+- Tesseract OCR
+- Instagram and Discord accounts
+- Internet connection
+
+## 🛠️ Installation
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/cs-free-code-getter.git
+cd cs-free-code-getter
+```
+
+### 2. Install Python dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Installez Tesseract OCR :
-   - Windows : Téléchargez depuis https://github.com/UB-Mannheim/tesseract/wiki
-   - Assurez-vous que le chemin vers tesseract.exe est correct dans le code
+### 3. Install Tesseract OCR
 
-3. Configurez vos credentials Instagram :
-   - Créez un fichier `.env` à la racine du projet
-   - Ajoutez vos credentials :
-   ```
-   INSTAGRAM_USERNAME=votre_email@gmail.com
-   INSTAGRAM_PASSWORD=votre_mot_de_passe
-   ```
+**Windows:**
+- Download from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
+- Install in `C:\Program Files\Tesseract-OCR\`
+- Make sure the path is correct in `src/extraire_code.py`
 
-## Utilisation
+**Linux:**
+```bash
+sudo apt-get install tesseract-ocr
+```
 
-### Script principal (recommandé)
+**macOS:**
+```bash
+brew install tesseract
+```
+
+### 4. Configuration
+
+Create a `.env` file in the project root:
+
+```env
+# Instagram Credentials
+INSTAGRAM_USERNAME=your_email@gmail.com
+INSTAGRAM_PASSWORD=your_password
+
+# Discord Bot Token (Selfbot)
+DISCORD_TOKEN=your_discord_token
+DISCORD_OUTPUT_CHANNEL_ID=output_channel_id
+```
+
+### 5. Configure monitored sites
+
+Modify `setup.json` according to your needs:
+
+```json
+[
+    {
+        "site": "csgoskins",
+        "username_instagram": "csgoskins_official",
+        "username_facebook": "csgoskinscom",
+        "discord_channel_id": "1202603456825790534"
+    },
+    {
+        "site": "csgocases",
+        "username_instagram": "csgocasescom",
+        "username_facebook": "csgocasescom",
+        "discord_channel_id": "1279122419994595361"
+    }
+]
+```
+
+## 🎯 Usage
+
+### Launch the main bot
 ```bash
 python main.py
 ```
 
-Ce script va :
-1. Télécharger automatiquement la dernière image du compte @csgocasescom
-2. Extraire le code promo de l'image
-3. Sauvegarder le code dans `downloaded_images/latest_code.txt`
+The bot will:
+1. Connect to configured platforms
+2. Download latest images
+3. Extract promo codes with OCR
+4. Send new codes via Discord
+5. Wait 1 hour before next check
 
-### Scripts individuels
+### Individual scripts
 
-#### Téléchargement d'image uniquement
+**Images download only:**
 ```bash
-python download_image.py
+python src/download_image.py
 ```
 
-#### Extraction de code uniquement
+**Code extraction only:**
 ```bash
-python extraire_code.py [chemin_vers_image]
+python src/extraire_code.py image_path
 ```
 
-## Structure des fichiers
+## 📁 Project Structure
 
-- `main.py` : Script principal combinant téléchargement et extraction
-- `download_image.py` : Script de téléchargement d'images Instagram
-- `extraire_code.py` : Script d'extraction de codes promo
-- `requirements.txt` : Dépendances Python
-- `.env` : Variables d'environnement (à créer)
-- `downloaded_images/` : Dossier contenant les images téléchargées et codes extraits
+```
+cs-free-code-getter/
+├── main.py                 # Main script
+├── setup.json             # Monitored sites configuration
+├── requirements.txt       # Python dependencies
+├── .env                  # Environment variables (to create)
+├── src/
+│   ├── download_image.py # Multi-platform image download
+│   ├── extraire_code.py  # Code extraction with OCR
+│   └── selfbot.py        # Discord interface
+├── downloaded_images/    # Downloaded images
+├── last_code.json       # Sent codes history
+└── session_instagram.json # Instagram session
+```
 
-## Sécurité
+## 🔧 Advanced Configuration
 
-⚠️ **Important** : Ne partagez jamais votre fichier `.env` qui contient vos credentials Instagram. Ce fichier est automatiquement ignoré par Git.
+### Add a new site
 
-## Fonctionnalités
+1. Add an entry in `setup.json`:
+```json
+{
+    "site": "new_site",
+    "username_instagram": "instagram_account",
+    "username_facebook": "facebook_account",
+    "discord_channel_id": "discord_channel_id"
+}
+```
 
-- Téléchargement automatique depuis Instagram
-- Extraction de codes promo avec OCR (Tesseract)
-- Multiple prétraitements d'images pour améliorer la reconnaissance
-- Gestion des erreurs et logging
-- Sauvegarde automatique des codes extraits 
+### Modify check interval
+
+In `main.py`, modify the line:
+```python
+time.sleep(3600)  # 3600 seconds = 1 hour
+```
+
+### Banned codes
+
+In `src/extraire_code.py`, modify the `banned_codes` list:
+```python
+banned_codes = {'FREECDE', 'XYZ789', 'OTHER_CODE'}
+```
+
+## 🔒 Security
+
+⚠️ **Important:**
+- Never share your `.env` file
+- The `.env` file is automatically ignored by Git
+- Use dedicated accounts for this bot
+- Respect platform terms of service
 
 
+## 🤝 Contributing
 
-pour facebook
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest improvements
+- Add new features
 
-https://github.com/hikaruAi/FacebookBot
-https://chatgpt.com/c/6868606d-f50c-8009-b6f3-fa1a845b5904
+## ⚠️ Disclaimer
+
+This bot is intended for educational and personal use. Make sure to respect:
+- Platform terms of service
+- Local laws on automation
+- Copyright and intellectual property rights
+
+---
